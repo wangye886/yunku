@@ -57,12 +57,6 @@
 
   .site-logo svg { width: 28px; height: 28px; }
 
-  .header-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
   /* ===== Hero ===== */
   .hero {
     background: linear-gradient(135deg, #4361ee 0%, #7c3aed 100%);
@@ -226,8 +220,14 @@
     font-weight: 600;
     color: var(--text);
     margin-bottom: 3px;
-    line-height: 1.45;
+    line-height: 1.5;
     word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 3em;
   }
 
   .card-category {
@@ -242,25 +242,103 @@
   .card-desc {
     font-size: 13px;
     color: var(--text-muted);
-    line-height: 1.7;
+    line-height: 1.8;
     word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 3.6em;
   }
 
   .card-footer {
     display: flex;
+    flex-direction: column;
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    gap: 8px;
+  }
+
+  /* 单链接时 footer 内部横排（信息 + 按钮） */
+  .card-footer-single {
+    display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: auto;
-    padding-top: 8px;
-    border-top: 1px solid var(--border);
     gap: 12px;
   }
 
-  .card-size {
-    font-size: 12px;
+  /* 多链接时：每行一个网盘，横排 名+码+按钮 */
+  .card-link-row-full {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .card-link-row-full .link-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+    font-size: 13px;
     color: var(--text-muted);
-    line-height: 1.5;
-    word-break: break-word;
+    flex-wrap: wrap;
+  }
+
+  .card-link-row-full .link-name {
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 13px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .card-link-row-full .link-code {
+    color: var(--text-muted);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .card-link-row-full .link-code b {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* 单链接：信息区 */
+  .card-links-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .card-link-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .card-link-row .link-name {
+    color: var(--primary);
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .card-link-row .link-code {
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .card-link-row .link-code b {
+    color: var(--text);
+    font-weight: 500;
   }
 
   .btn-group {
@@ -543,28 +621,12 @@
 
   /* ===== Responsive ===== */
   @media (max-width: 600px) {
+    .link-card { padding: 14px; gap: 10px; }
     .hero h1 { font-size: 22px; }
     .hero-stats { gap: 20px; padding: 8px 20px; }
     .search-box input { width: 150px; }
     .contact-list { grid-template-columns: 1fr; }
     .page-info { display: none; }
-  }
-
-  .section-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .section-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
   }
 
   /* Cloud icons colors */
@@ -599,9 +661,6 @@
     </svg>
     <span id="siteName">资源分享站</span>
   </a>
-  <div class="header-actions">
-    <!-- 已移除客户端管理后台，通过 GitHub 修改 data/links.json -->
-  </div>
 </header>
 
 <!-- Hero -->
@@ -876,104 +935,66 @@ function renderContact() {
   }).join('') + (contact.note ? `<p class="contact-note">${esc(contact.note)}</p>` : '');
 }
 
-function cloudIcon(url) {
-  if (!url) return iconOther();
+/* =============================================
+   网盘平台配置表（统一管理所有网盘识别逻辑）
+   ============================================= */
+const CLOUD_PLATFORMS = [
   // 国产网盘
-  if (url.includes('pan.baidu.com'))                                 return iconLetter('icon-baidu',   '#2932e1', '百度');
-  if (url.includes('aliyundrive.com') || url.includes('alipan.com')) return iconLetter('icon-ali',     '#ff6a00', '阿里');
-  if (url.includes('pan.quark.cn') || url.includes('quark.cn'))      return iconLetter('icon-quark',   '#0f62fe', '夸克');
-  if (url.includes('115.com'))                                       return iconLetter('icon-115',     '#5c1fd6', '115');
-  if (url.includes('cloud.189.cn') || url.includes('189.cn'))        return iconLetter('icon-tianyi',  '#00b578', '天翼');
-  if (url.includes('weiyun.com'))                                    return iconLetter('icon-weiyun',  '#0066ff', '微云');
-  if (url.includes('yunpan.360') || url.includes('c.360.cn'))         return iconLetter('icon-360',     '#00b35a', '360');
-  if (url.includes('jianguoyun.com'))                                return iconLetter('icon-nut',     '#2585e6', '坚果');
-  if (url.includes('caiyun.139.com') || url.includes('139.com'))     return iconLetter('icon-caiyun',  '#ff5500', '和彩');
-  if (url.includes('ctfile.com') || url.includes('pipipan.com'))     return iconLetter('icon-ct',      '#1890ff', '城通');
-  if (url.includes('wenshushu.cn'))                                  return iconLetter('icon-wenshu',  '#ff7800', '文叔');
-  if (url.includes('lanzou.com') || url.includes('lanzoux.com') || url.includes('lanzouj.com')) return iconLetter('icon-lanzou', '#1e88e5', '蓝奏');
-  if (url.includes('xunlei.com') || url.includes('pan.xunlei.com'))  return iconLetter('icon-xunlei',  '#0099ff', '迅雷');
-  if (url.includes('cowtransfer.com'))                               return iconLetter('icon-cow',     '#ffcc00', '奶牛');
-  if (url.includes('feisu.com') || url.includes('6pan'))             return iconLetter('icon-feisu',   '#ff5722', '飞速');
+  { domains: ['pan.baidu.com'],        name: '百度网盘',   iconCls: 'icon-baidu',   color: '#2932e1', iconText: '百度', codeParam: 'pwd' },
+  { domains: ['aliyundrive.com', 'alipan.com'], name: '阿里云盘', iconCls: 'icon-ali', color: '#ff6a00', iconText: '阿里', codeParam: 'pwd' },
+  { domains: ['pan.quark.cn', 'quark.cn'], name: '夸克网盘', iconCls: 'icon-quark', color: '#0f62fe', iconText: '夸克', codeParam: 'pwd' },
+  { domains: ['115.com'],              name: '115网盘',    iconCls: 'icon-115',    color: '#5c1fd6', iconText: '115',  codeParam: 'password' },
+  { domains: ['cloud.189.cn', '189.cn'], name: '天翼云盘',  iconCls: 'icon-tianyi', color: '#00b578', iconText: '天翼', codeParam: 'pwd' },
+  { domains: ['weiyun.com'],           name: '腾讯微云',   iconCls: 'icon-weiyun', color: '#0066ff', iconText: '微云', codeParam: null },
+  { domains: ['yunpan.360', 'c.360.cn'], name: '360云盘',   iconCls: 'icon-360',    color: '#00b35a', iconText: '360',  codeParam: null },
+  { domains: ['jianguoyun.com'],       name: '坚果云',     iconCls: 'icon-nut',    color: '#2585e6', iconText: '坚果', codeParam: null },
+  { domains: ['caiyun.139.com', '139.com'], name: '和彩云', iconCls: 'icon-caiyun', color: '#ff5500', iconText: '和彩', codeParam: null },
+  { domains: ['ctfile.com', 'pipipan.com'], name: '城通网盘', iconCls: 'icon-ct', color: '#1890ff', iconText: '城通', codeParam: null },
+  { domains: ['wenshushu.cn'],         name: '文叔叔',     iconCls: 'icon-wenshu', color: '#ff7800', iconText: '文叔', codeParam: null },
+  { domains: ['lanzou.com', 'lanzoux.com', 'lanzouj.com'], name: '蓝奏云', iconCls: 'icon-lanzou', color: '#1e88e5', iconText: '蓝奏', codeParam: 'pwd' },
+  { domains: ['xunlei.com', 'pan.xunlei.com'], name: '迅雷网盘', iconCls: 'icon-xunlei', color: '#0099ff', iconText: '迅雷', codeParam: 'pwd' },
+  { domains: ['cowtransfer.com'],      name: '奶牛快传',   iconCls: 'icon-cow',    color: '#ffcc00', iconText: '奶牛', codeParam: null },
+  { domains: ['feisu.com', '6pan'],    name: '飞速网盘',   iconCls: 'icon-feisu',  color: '#ff5722', iconText: '飞速', codeParam: null },
   // 海外网盘
-  if (url.includes('onedrive.live.com') || url.includes('1drv.ms')) return iconLetter('icon-onedrive','#0078d4', 'One');
-  if (url.includes('drive.google.com'))                              return iconLetter('icon-gdrive',  '#4285f4', '谷歌');
-  if (url.includes('dropbox.com'))                                   return iconLetter('icon-dropbox', '#0061ff', 'DB');
-  if (url.includes('mega.nz') || url.includes('mega.co.nz'))         return iconLetter('icon-mega',    '#d9272e', 'MEGA');
-  if (url.includes('pcloud.com'))                                    return iconLetter('icon-pcloud',  '#00aaff', 'pC');
-  if (url.includes('mediafire.com'))                                 return iconLetter('icon-mf',      '#ff7700', 'MF');
-  if (url.includes('wetransfer.com'))                                return iconLetter('icon-wt',      '#4096ff', 'WT');
-  if (url.includes('sendspace.com'))                                 return iconLetter('icon-ss',      '#0099ff', 'SS');
-  if (url.includes('upload.ee'))                                     return iconLetter('icon-ee',      '#1a73e8', 'EE');
+  { domains: ['onedrive.live.com', '1drv.ms'], name: 'OneDrive', iconCls: 'icon-onedrive', color: '#0078d4', iconText: 'One', codeParam: null },
+  { domains: ['drive.google.com'],     name: 'Google Drive', iconCls: 'icon-gdrive', color: '#4285f4', iconText: '谷歌', codeParam: null },
+  { domains: ['dropbox.com'],          name: 'Dropbox',     iconCls: 'icon-dropbox', color: '#0061ff', iconText: 'DB', codeParam: null },
+  { domains: ['mega.nz', 'mega.co.nz'], name: 'MEGA',       iconCls: 'icon-mega',   color: '#d9272e', iconText: 'MEGA', codeParam: null },
+  { domains: ['pcloud.com'],           name: 'pCloud',      iconCls: 'icon-pcloud', color: '#00aaff', iconText: 'pC',  codeParam: null },
+  { domains: ['mediafire.com'],        name: 'MediaFire',   iconCls: 'icon-mf',     color: '#ff7700', iconText: 'MF',  codeParam: null },
+  { domains: ['wetransfer.com'],       name: 'WeTransfer',  iconCls: 'icon-wt',     color: '#4096ff', iconText: 'WT',  codeParam: null },
+  { domains: ['sendspace.com'],        name: 'SendSpace',   iconCls: 'icon-ss',     color: '#0099ff', iconText: 'SS',  codeParam: null },
+  { domains: ['upload.ee'],            name: 'Easyupload',  iconCls: 'icon-ee',     color: '#1a73e8', iconText: 'EE',  codeParam: null },
   // 文档/笔记类
-  if (url.includes('docs.qq.com'))                                   return iconLetter('icon-txdoc',   '#1e6fff', '腾讯');
-  if (url.includes('kdocs.cn') || url.includes('wps.cn'))            return iconLetter('icon-kdocs',   '#ee2c2c', '金山');
-  if (url.includes('shimo.im'))                                      return iconLetter('icon-shimo',   '#2a52e9', '石墨');
-  if (url.includes('feishu.cn') || url.includes('larksuite.com'))   return iconLetter('icon-feishu',  '#3370ff', '飞书');
-  if (url.includes('yuque.com'))                                     return iconLetter('icon-yuque',   '#25b864', '语雀');
-  if (url.includes('notion.so') || url.includes('notion.site'))      return iconLetter('icon-notion',  '#000000', 'N');
-  if (url.includes('icloud.com'))                                    return iconLetter('icon-icloud',  '#a3aaae', 'iC');
-  return iconOther();
+  { domains: ['docs.qq.com'],          name: '腾讯文档',    iconCls: 'icon-txdoc',  color: '#1e6fff', iconText: '腾讯', codeParam: null },
+  { domains: ['kdocs.cn', 'wps.cn'],   name: '金山文档',    iconCls: 'icon-kdocs',  color: '#ee2c2c', iconText: '金山', codeParam: null },
+  { domains: ['shimo.im'],             name: '石墨文档',    iconCls: 'icon-shimo',  color: '#2a52e9', iconText: '石墨', codeParam: null },
+  { domains: ['feishu.cn', 'larksuite.com'], name: '飞书文档', iconCls: 'icon-feishu', color: '#3370ff', iconText: '飞书', codeParam: null },
+  { domains: ['yuque.com'],            name: '语雀',        iconCls: 'icon-yuque',  color: '#25b864', iconText: '语雀', codeParam: null },
+  { domains: ['notion.so', 'notion.site'], name: 'Notion',   iconCls: 'icon-notion', color: '#000000', iconText: 'N',   codeParam: null },
+  { domains: ['icloud.com'],           name: 'iCloud',      iconCls: 'icon-icloud', color: '#a3aaae', iconText: 'iC',  codeParam: null },
+];
+
+// 根据 URL 查找匹配的网盘平台
+function findPlatform(url) {
+  if (!url) return null;
+  return CLOUD_PLATFORMS.find(p => p.domains.some(d => url.includes(d))) || null;
 }
 
-function iconLetter(cls, color, text) {
-  return {
-    cls,
-    svg: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="10" fill="${color}"/><text x="20" y="25" text-anchor="middle" fill="white" font-size="12" font-weight="bold">${text}</text></svg>`
-  };
-}
-
-function iconCloud(cls, color) {
-  return {
-    cls,
-    svg: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="10" fill="${color}"/><path d="M12 24h16a5 5 0 0 0 0-10 6 6 0 0 0-10.5-2.5A6 6 0 0 0 12 24z" fill="white" opacity="0.9"/></svg>`
-  };
-}
-
-function iconTriangle(cls, color) {
-  return {
-    cls,
-    svg: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="10" fill="${color}"/><path d="M20 11 L29 27 H11 Z" fill="white" opacity="0.9"/></svg>`
-  };
-}
-
-function iconOther() {
-  return iconLetter('icon-other', '#9ca3af', '网盘');
+function cloudIcon(url) {
+  const platform = findPlatform(url);
+  if (platform) {
+    return {
+      cls: platform.iconCls,
+      svg: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="10" fill="${platform.color}"/><text x="20" y="25" text-anchor="middle" fill="white" font-size="12" font-weight="bold">${platform.iconText}</text></svg>`
+    };
+  }
+  return { cls: 'icon-other', svg: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="10" fill="#9ca3af"/><text x="20" y="25" text-anchor="middle" fill="white" font-size="12" font-weight="bold">网盘</text></svg>` };
 }
 
 function cloudName(url) {
-  if (!url) return '网盘';
-  if (url.includes('pan.baidu.com'))                                 return '百度网盘';
-  if (url.includes('aliyundrive.com') || url.includes('alipan.com')) return '阿里云盘';
-  if (url.includes('pan.quark.cn') || url.includes('quark.cn'))      return '夸克网盘';
-  if (url.includes('115.com'))                                       return '115网盘';
-  if (url.includes('cloud.189.cn') || url.includes('189.cn'))        return '天翼云盘';
-  if (url.includes('weiyun.com'))                                    return '腾讯微云';
-  if (url.includes('yunpan.360') || url.includes('c.360.cn'))         return '360云盘';
-  if (url.includes('jianguoyun.com'))                                return '坚果云';
-  if (url.includes('caiyun.139.com') || url.includes('139.com'))     return '和彩云';
-  if (url.includes('ctfile.com') || url.includes('pipipan.com'))     return '城通网盘';
-  if (url.includes('wenshushu.cn'))                                  return '文叔叔';
-  if (url.includes('lanzou.com') || url.includes('lanzoux.com') || url.includes('lanzouj.com')) return '蓝奏云';
-  if (url.includes('xunlei.com') || url.includes('pan.xunlei.com'))  return '迅雷网盘';
-  if (url.includes('cowtransfer.com'))                               return '奶牛快传';
-  if (url.includes('feisu.com') || url.includes('6pan'))             return '飞速网盘';
-  if (url.includes('onedrive.live.com') || url.includes('1drv.ms')) return 'OneDrive';
-  if (url.includes('drive.google.com'))                              return 'Google Drive';
-  if (url.includes('dropbox.com'))                                   return 'Dropbox';
-  if (url.includes('mega.nz') || url.includes('mega.co.nz'))         return 'MEGA';
-  if (url.includes('pcloud.com'))                                    return 'pCloud';
-  if (url.includes('mediafire.com'))                                 return 'MediaFire';
-  if (url.includes('wetransfer.com'))                                return 'WeTransfer';
-  if (url.includes('sendspace.com'))                                 return 'SendSpace';
-  if (url.includes('upload.ee'))                                     return 'Easyupload';
-  if (url.includes('docs.qq.com'))                                   return '腾讯文档';
-  if (url.includes('kdocs.cn') || url.includes('wps.cn'))            return '金山文档';
-  if (url.includes('shimo.im'))                                      return '石墨文档';
-  if (url.includes('feishu.cn') || url.includes('larksuite.com'))   return '飞书文档';
-  if (url.includes('yuque.com'))                                     return '语雀';
-  if (url.includes('notion.so') || url.includes('notion.site'))      return 'Notion';
-  if (url.includes('icloud.com'))                                    return 'iCloud';
-  return '网盘';
+  const platform = findPlatform(url);
+  return platform ? platform.name : '网盘';
 }
 
 function gotoUrl(url, code) {
@@ -981,54 +1002,16 @@ function gotoUrl(url, code) {
   if (!code || !String(code).trim()) return url;
 
   try {
+    const platform = findPlatform(url);
     const u = new URL(url);
-    const host = u.hostname;
     const c = String(code).trim();
 
-    // 百度网盘：?pwd=abcd
-    if (host.includes('pan.baidu.com')) {
+    if (platform && platform.codeParam) {
+      u.searchParams.set(platform.codeParam, c);
+    } else {
+      // 通用：尝试 pwd，不保证有效
       u.searchParams.set('pwd', c);
-      return u.toString();
     }
-
-    // 夸克网盘：?pwd=abcd
-    if (host.includes('pan.quark.cn')) {
-      u.searchParams.set('pwd', c);
-      return u.toString();
-    }
-
-    // 阿里云盘/阿里盘：尝试 ?pwd=abcd
-    if (host.includes('aliyundrive.com') || host.includes('alipan.com')) {
-      u.searchParams.set('pwd', c);
-      return u.toString();
-    }
-
-    // 115网盘
-    if (host.includes('115.com')) {
-      u.searchParams.set('password', c);
-      return u.toString();
-    }
-
-    // 天翼云盘
-    if (host.includes('cloud.189.cn')) {
-      u.searchParams.set('pwd', c);
-      return u.toString();
-    }
-
-    // 蓝奏云
-    if (host.includes('lanzou') || host.includes('lanzoux')) {
-      u.searchParams.set('pwd', c);
-      return u.toString();
-    }
-
-    // 迅雷网盘
-    if (host.includes('xunlei.com') || host.includes('pan.xunlei')) {
-      u.searchParams.set('pwd', c);
-      return u.toString();
-    }
-
-    // 通用：也尝试 pwd，不保证有效
-    u.searchParams.set('pwd', c);
     return u.toString();
   } catch (e) {
     return url;
@@ -1042,35 +1025,55 @@ function cardHTML(l) {
   const goUrl = gotoUrl(l.url, l.code);
 
   const hasUrl2 = l.url2 && l.url2.trim();
-  const url2Icon = hasUrl2 ? cloudIcon(l.url2) : null;
   const url2Cname = hasUrl2 ? cloudName(l.url2) : '备用链接';
   const url2HasCode = hasUrl2 && l.code2 && l.code2.trim();
   const url2GoUrl = hasUrl2 ? gotoUrl(l.url2, l.code2) : '#';
 
-  const buttons = [];
-  buttons.push(`
-    <a class="btn-goto" href="${esc(goUrl)}" target="_blank" rel="noopener noreferrer" data-code="${esc(l.code || '')}" data-id="${esc(l.id)}" onclick="handleGoto(this)">
-      ${cname}
-      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-    </a>
-  `);
+  // 构建 footer 内容
+  let footerContent;
 
   if (hasUrl2) {
-    buttons.push(`
-      <a class="btn-goto btn-goto-secondary" href="${esc(url2GoUrl)}" target="_blank" rel="noopener noreferrer" data-code="${esc(l.code2 || '')}" data-id="${esc(l.id)}" onclick="handleGoto(this)">
-        ${url2Cname}
-        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-      </a>
-    `);
-  }
-
-  const sizeInfo = [];
-  sizeInfo.push(cname);
-  if (l.size) sizeInfo.push(esc(l.size));
-  if (hasCode) sizeInfo.push(`提取码：<b>${esc(l.code)}</b>`);
-  if (hasUrl2) {
-    sizeInfo.push(url2Cname);
-    if (url2HasCode) sizeInfo.push(`提取码：<b>${esc(l.code2)}</b>`);
+    // 多链接：每行 = 网盘名 + 提取码 + 按钮，两行叠放
+    const row1 = `
+      <div class="card-link-row-full">
+        <div class="link-info">
+          <span class="link-name">${esc(cname)}</span>
+          ${hasCode ? `<span class="link-code">提取码：<b>${esc(l.code)}</b></span>` : ''}
+        </div>
+        <a class="btn-goto" href="${esc(goUrl)}" target="_blank" rel="noopener noreferrer" data-code="${esc(l.code || '')}" data-id="${esc(l.id)}" onclick="handleGoto(this)">
+          ${cname}
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+      </div>`;
+    const row2 = `
+      <div class="card-link-row-full">
+        <div class="link-info">
+          <span class="link-name">${esc(url2Cname)}</span>
+          ${url2HasCode ? `<span class="link-code">提取码：<b>${esc(l.code2)}</b></span>` : ''}
+        </div>
+        <a class="btn-goto btn-goto-secondary" href="${esc(url2GoUrl)}" target="_blank" rel="noopener noreferrer" data-code="${esc(l.code2 || '')}" data-id="${esc(l.id)}" onclick="handleGoto(this)">
+          ${url2Cname}
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+      </div>`;
+    footerContent = row1 + row2;
+  } else {
+    // 单链接：横排（信息左，按钮右）
+    footerContent = `
+      <div class="card-footer-single">
+        <div class="card-links-info">
+          <div class="card-link-row">
+            <span class="link-name">${esc(cname)}</span>
+            ${hasCode ? `<span class="link-code">提取码：<b>${esc(l.code)}</b></span>` : ''}
+          </div>
+        </div>
+        <div class="btn-group">
+          <a class="btn-goto" href="${esc(goUrl)}" target="_blank" rel="noopener noreferrer" data-code="${esc(l.code || '')}" data-id="${esc(l.id)}" onclick="handleGoto(this)">
+            ${cname}
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </a>
+        </div>
+      </div>`;
   }
 
   return `
@@ -1084,30 +1087,26 @@ function cardHTML(l) {
     </div>
     ${l.desc ? `<p class="card-desc">${esc(l.desc)}</p>` : ''}
     <div class="card-footer">
-      <span class="card-size">${sizeInfo.join(' · ')}</span>
-      <div class="btn-group">
-        ${buttons.join('')}
-      </div>
+      ${footerContent}
     </div>
   </div>`;
 }
 
 function esc(s) {
   if (!s) return '';
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function trackClick(id) {
-  // optional: can record click count here
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 function handleGoto(el) {
   const code = el.dataset.code;
-  const id = el.dataset.id;
   if (code && code.trim()) {
     navigator.clipboard.writeText(code.trim()).catch(() => {});
   }
-  trackClick(id);
 }
 
 /* =============================================
