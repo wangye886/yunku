@@ -1,40 +1,12 @@
 [
   {
     "id": "demo1",
-    "title": "刘晓燕英语资料大全",
+    "title": "晓燕老师资料",
     "category": "学习",
-    "url": "https://pan.quark.cn/s/8f41495e5d2c",
-    "code": "k8AG",
-    "url2": "https://pan.baidu.com/s/1abcdefghijk",
-    "code2": "6666",
-    "size": "1.2 GB",
-    "desc": "这是一个示例链接。请编辑 data/links.json 添加你自己的资源，提交到 GitHub 后 Cloudflare 会自动部署更新。"
-  },
-  {
-    "id": "demo2",
-    "title": "英语资料大全",
-    "category": "学习",
-    "url": "https://pan.quark.cn/s/8f41495e5d2c",
-    "code": "k8AG",
-    "size": "1.2 GB",
-    "desc": "这是一个示例链接。请编辑 data/links.json 添加你自己的资源，提交到 GitHub 后 Cloudflare 会自动部署更新。"
-  },
-  {
-    "id": "demo3",
-    "title": "英语资料大全",
-    "category": "学习",
-    "url": "https://pan.quark.cn/s/8f41495e5d2c",
-    "code": "k8AG",
-    "size": "1.2 GB",
-    "desc": "这是一个示例链接。请编辑 data/links.json 添加你自己的资源，提交到 GitHub 后 Cloudflare 会自动部署更新。"
-  },
-  {
-    "id": "soft1",
-    "title": "示例软件资源",
-    "category": "软件",
-    "url": "https://pan.quark.cn/s/8f41495e5d2c",
-    "code": "k8AG",
-    "size": "1.2 GB",
-    "desc": "这是一个示例链接。请编辑 data/links.json 添加你自己的资源，提交到 GitHub 后 Cloudflare 会自动部署更新。"
+    "url": "https://pan.quark.cn/s/aedf57fe099f",
+    "code": "",
+    "url2": "",
+    "code2": "",
+    "desc": "刘老师的资料220GB"
   }
 ]
