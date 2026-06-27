@@ -1,0 +1,22 @@
+# ============================================
+# Cloudflare Pages 安全头 + 缓存策略
+# ============================================
+
+# 所有 HTML 文件：5 分钟缓存（性能 + 更新时效平衡）
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  X-XSS-Protection: 1; mode=block
+  Cache-Control: public, max-age=300
+
+# JSON 数据：每次都重新拉（保证资源更新立即生效）
+/data/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+# 静态资源（图片 / 字体）如果有的话：长期缓存
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+/images/*
+  Cache-Control: public, max-age=31536000, immutable

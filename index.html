@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>资源分享站</title>
+<style>
+  :root {
+    --bg: #f5f6fa;
+    --card-bg: #ffffff;
+    --primary: #4361ee;
+    --primary-hover: #3451d1;
+    --text: #1e1e2e;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+    --tag-bg: #eff2ff;
+    --tag-color: #4361ee;
+    --danger: #ef4444;
+    --success: #10b981;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ===== Header ===== */
+  .site-header {
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .site-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--primary);
+    text-decoration: none;
+  }
+
+  .site-logo svg { width: 28px; height: 28px; }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* ===== Hero ===== */
+  .hero {
+    background: linear-gradient(135deg, #4361ee 0%, #7c3aed 100%);
+    color: #fff;
+    padding: 48px 24px;
+    text-align: center;
+  }
+
+  .hero h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .hero p {
+    font-size: 15px;
+    opacity: .85;
+    max-width: 480px;
+    margin: 0 auto 20px;
+    line-height: 1.7;
+  }
+
+  .hero-stats {
+    display: inline-flex;
+    gap: 32px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 40px;
+    padding: 10px 28px;
+    font-size: 13px;
+  }
+
+  .hero-stats span b { font-size: 18px; font-weight: 700; display: inline-block; margin-right: 5px; vertical-align: -2px; }
+
+  /* ===== Main layout ===== */
+  .main-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 16px;
+  }
+
+  /* ===== Filter bar ===== */
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  .filter-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .filter-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tag-btn {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-muted);
+    transition: all .15s;
+    white-space: nowrap;
+  }
+
+  .tag-btn.active, .tag-btn:hover {
+    background: var(--tag-bg);
+    color: var(--primary);
+    border-color: #c7d2fe;
+  }
+
+  /* ===== Search ===== */
+  .search-box {
+    margin-left: auto;
+    position: relative;
+  }
+
+  .search-box input {
+    padding: 7px 12px 7px 34px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    width: 200px;
+    outline: none;
+    background: var(--card-bg);
+    color: var(--text);
+    transition: border-color .15s;
+  }
+
+  .search-box input:focus { border-color: var(--primary); }
+
+  .search-box .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  /* ===== Grid ===== */
+  .links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  /* ===== Card ===== */
+  .link-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: box-shadow .15s, transform .15s;
+    position: relative;
+  }
+
+  .link-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .card-icon svg {
+    width: 40px;
+    height: 40px;
+    display: block;
+  }
+
+  .card-meta { flex: 1; min-width: 0; }
+
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 3px;
+    line-height: 1.45;
+    word-break: break-word;
+  }
+
+  .card-category {
+    font-size: 12px;
+    color: var(--primary);
+    background: var(--tag-bg);
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+
+  .card-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    word-break: break-word;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+    gap: 12px;
+  }
+
+  .card-size {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    word-break: break-word;
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .btn-goto {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background .15s;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .btn-goto:hover { background: var(--primary-hover); }
+
+  .btn-goto-secondary {
+    background: #f3f4f6;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .btn-goto-secondary:hover {
+    background: #e5e7eb;
+    color: var(--primary);
+    border-color: #c7d2fe;
+  }
+
+  /* ===== Empty state ===== */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+    grid-column: 1 / -1;
+  }
+
+  .empty-state svg { opacity: .3; margin-bottom: 16px; }
+  .empty-state p { font-size: 15px; margin-bottom: 8px; }
+  .empty-state small { font-size: 13px; }
+
+  /* ===== Data error banner ===== */
+  .data-error {
+    background: #fef2f2;
+    color: #991b1b;
+    border-bottom: 1px solid #fca5a5;
+    padding: 12px 24px;
+    font-size: 13px;
+    text-align: center;
+  }
+
+  /* ===== Contact ===== */
+  .contact-section {
+    background: #fff;
+    border-top: 1px solid var(--border);
+    padding: 40px 16px;
+  }
+
+  .contact-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .contact-section h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .contact-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  .contact-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+  }
+
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg);
+    transition: box-shadow .15s, border-color .15s;
+    overflow: hidden;
+  }
+
+  .contact-item:hover {
+    border-color: #c7d2fe;
+    box-shadow: var(--shadow);
+  }
+
+  .contact-item-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    flex: 1;
+    min-width: 0;
+    text-decoration: none;
+    color: inherit;
+    transition: background .15s;
+  }
+
+  .contact-item-main:hover {
+    background: rgba(99, 102, 241, 0.04);
+  }
+
+  .contact-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #fff;
+  }
+
+  .contact-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .contact-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .contact-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+  }
+
+  .contact-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .contact-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 14px;
+    border: none;
+    border-left: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .contact-copy-btn:hover {
+    background: rgba(99, 102, 241, 0.08);
+    color: var(--primary);
+  }
+
+  .contact-copy-btn.copied {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.08);
+  }
+
+  .contact-note {
+    grid-column: 1 / -1;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    padding: 4px 0;
+  }
+
+  /* ===== Pagination ===== */
+  .pagination {
+    margin-top: 28px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .pagination-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .page-numbers {
+    display: flex;
+    gap: 6px;
+  }
+
+  .page-btn {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .15s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .page-btn:hover:not(:disabled) {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  .page-btn.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+  }
+
+  .page-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .page-prev,
+  .page-next {
+    padding: 0 14px;
+  }
+
+  .page-ellipsis {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  .page-info {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-left: 8px;
+  }
+
+  /* ===== Footer ===== */
+  .site-footer {
+    text-align: center;
+    padding: 28px 16px;
+    color: var(--text-muted);
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 22px; }
+    .hero-stats { gap: 20px; padding: 8px 20px; }
+    .search-box input { width: 150px; }
+    .contact-list { grid-template-columns: 1fr; }
+    .page-info { display: none; }
+  }
+
+  .section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Cloud icons colors */
+  .icon-baidu { background: #e8f4fd; }
+  .icon-ali { background: #fff3e0; }
+  .icon-115 { background: #f3e5f5; }
+  .icon-tianyi { background: #e8f5e9; }
+  .icon-quark { background: #e3f2fd; }
+  .icon-other { background: #fafafa; }
+
+  /* ===== Toast animations ===== */
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes toastOut {
+    from { opacity: 1; transform: translateY(0) scale(1); }
+    to   { opacity: 0; transform: translateY(8px) scale(0.96); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="site-header">
+  <a href="#" class="site-logo">
+    <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="28" height="28" rx="7" fill="#4361ee"/>
+      <path d="M7 14C7 10.134 10.134 7 14 7C17.866 7 21 10.134 21 14C21 17.866 17.866 21 14 21" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <path d="M10 14H18M18 14L15 11M18 14L15 17" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="10" cy="19" r="2" fill="white"/>
+    </svg>
+    <span id="siteName">资源分享站</span>
+  </a>
+  <div class="header-actions">
+    <!-- 已移除客户端管理后台，通过 GitHub 修改 data/links.json -->
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <h1 id="heroTitle">我的网盘资源分享</h1>
+  <p id="heroDesc">精选资源一键直达，点击卡片即可跳转到网盘下载</p>
+  <div class="hero-stats">
+    <span><b id="statTotal">0</b>个资源</span>
+    <span><b id="statCats">0</b>个分类</span>
+  </div>
+</section>
+
+<!-- Main -->
+<main class="main-wrap">
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <span class="filter-label">分类：</span>
+    <div class="filter-tags" id="filterTags">
+      <button class="tag-btn active" data-cat="all" onclick="filterLinks('all', this)">全部</button>
+    </div>
+    <div class="search-box" style="margin-left:auto">
+      <svg class="search-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="搜索资源..." id="searchInput" oninput="handleSearch()" />
+    </div>
+  </div>
+
+  <!-- Links grid -->
+  <div class="links-grid" id="linksGrid">
+    <!-- cards rendered by JS -->
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" id="pagination">
+    <!-- pagination rendered by JS -->
+  </div>
+</main>
+
+<!-- Contact -->
+<section class="contact-section" id="contactSection">
+  <div class="contact-inner">
+    <h2>联系方式</h2>
+    <p class="contact-subtitle">如有资源失效、链接错误或合作需求，欢迎通过以下方式联系</p>
+    <div class="contact-list" id="contactList">
+      <!-- contact items rendered by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <p>由 <a href="#" style="color:var(--primary);text-decoration:none;">资源分享站</a> 提供 &nbsp;·&nbsp; 仅供个人使用，请勿滥用</p>
+</footer>
+
+<script>
+/* =============================================
+   Data Layer (JSON files, no localStorage admin)
+   ============================================= */
+
+async function fetchData() {
+  try {
+    const [linksRes, cfgRes] = await Promise.all([
+      fetch('data/links.json', { cache: 'no-store' }),
+      fetch('data/config.json', { cache: 'no-store' })
+    ]);
+
+    if (!linksRes.ok) throw new Error('links.json failed: ' + linksRes.status);
+    if (!cfgRes.ok)  throw new Error('config.json failed: ' + cfgRes.status);
+
+    links  = await linksRes.json();
+    config = await cfgRes.json();
+  } catch (e) {
+    console.error('加载数据失败:', e);
+    links  = [];
+    config = {};
+    showDataError('数据加载失败，请检查是否通过本地服务器或已部署的站点访问。');
+  }
+}
+
+function showDataError(msg) {
+  const el = document.createElement('div');
+  el.className = 'data-error';
+  el.textContent = msg;
+  document.body.prepend(el);
+}
+
+/* =============================================
+   State
+   ============================================= */
+let links = [];
+let config = {};
+let currentCat = 'all';
+let currentSearch = '';
+let currentPage = 1;
+const PAGE_SIZE = 12;
+
+/* =============================================
+   Init
+   ============================================= */
+async function init() {
+  await fetchData();
+  applyConfig();
+  renderAll();
+}
+
+function applyConfig() {
+  const { siteName, heroTitle, heroDesc } = config || {};
+  document.title = siteName || '资源分享站';
+  document.getElementById('siteName').textContent = siteName || '资源分享站';
+  document.getElementById('heroTitle').textContent = heroTitle || '我的网盘资源分享';
+  document.getElementById('heroDesc').textContent  = heroDesc || '精选资源一键直达，点击卡片即可跳转到网盘下载';
+}
+
+/* =============================================
+   Render
+   ============================================= */
+function renderAll() {
+  updateStats();
+  renderFilters();
+  renderCards();
+  renderContact();
+}
+
+function updateStats() {
+  const cats = [...new Set(links.map(l => l.category).filter(Boolean))];
+  document.getElementById('statTotal').textContent = links.length;
+  document.getElementById('statCats').textContent  = cats.length;
+}
+
+function renderFilters() {
+  const cats = ['全部', ...new Set(links.map(l => l.category).filter(Boolean))];
+  const container = document.getElementById('filterTags');
+  container.innerHTML = cats.map(c => {
+    const val = c === '全部' ? 'all' : c;
+    const active = currentCat === val ? 'active' : '';
+    return `<button class="tag-btn ${active}" data-cat="${val}" onclick="filterLinks('${val}', this)">${c}</button>`;
+  }).join('');
+}
+
+function getFilteredLinks() {
+  return links.filter(l => {
+    const matchCat    = currentCat === 'all' || l.category === currentCat;
+    const q           = currentSearch.trim().toLowerCase();
+    const matchSearch = !q || l.title.toLowerCase().includes(q) || (l.desc || '').toLowerCase().includes(q) || (l.category || '').toLowerCase().includes(q);
+    return matchCat && matchSearch;
+  });
+}
+
+function renderCards() {
+  const grid = document.getElementById('linksGrid');
+  const filtered = getFilteredLinks();
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <svg width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.41A16 16 0 0 0 16 16.49l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <p>暂无匹配的资源</p>
+        <small>在 data/links.json 中添加链接后提交到 GitHub，Cloudflare 会自动部署</small>
+      </div>`;
+    renderPagination(0, 0);
+    return;
+  }
+
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  if (currentPage > totalPages) currentPage = totalPages;
+  if (currentPage < 1) currentPage = 1;
+
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageItems = filtered.slice(start, start + PAGE_SIZE);
+
+  grid.innerHTML = pageItems.map(l => cardHTML(l)).join('');
+  renderPagination(totalPages, filtered.length);
+}
+
+function renderPagination(totalPages, totalCount) {
+  const container = document.getElementById('pagination');
+  if (!container) return;
+
+  if (totalPages <= 1) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const pageInfo = `<span class="page-info">共 ${totalCount} 条，第 ${currentPage}/${totalPages} 页</span>`;
+
+  let pages = [];
+  const maxVisible = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+  let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+  if (endPage - startPage + 1 < maxVisible) {
+    startPage = Math.max(1, endPage - maxVisible + 1);
+  }
+
+  if (startPage > 1) {
+    pages.push(`<button class="page-btn" onclick="goToPage(1)">1</button>`);
+    if (startPage > 2) pages.push(`<span class="page-ellipsis">...</span>`);
+  }
+
+  for (let i = startPage; i <= endPage; i++) {
+    const active = i === currentPage ? 'active' : '';
+    pages.push(`<button class="page-btn ${active}" onclick="goToPage(${i})">${i}</button>`);
+  }
+
+  if (endPage < totalPages) {
+    if (endPage < totalPages - 1) pages.push(`<span class="page-ellipsis">...</span>`);
+    pages.push(`<button class="page-btn" onclick="goToPage(${totalPages})">${totalPages}</button>`);
+  }
+
+  const prevDisabled = currentPage === 1 ? 'disabled' : '';
+  const nextDisabled = currentPage === totalPages ? 'disabled' : '';
+
+  container.innerHTML = `
+    <div class="pagination-wrap">
+      <button class="page-btn page-prev ${prevDisabled}" onclick="goToPage(${currentPage - 1})" ${prevDisabled}>上一页</button>
+      <div class="page-numbers">${pages.join('')}</div>
+      <button class="page-btn page-next ${nextDisabled}" onclick="goToPage(${currentPage + 1})" ${nextDisabled}>下一页</button>
+      ${pageInfo}
+    </div>
+  `;
+}
+
+function goToPage(page) {
+  if (page < 1) return;
+  const filtered = getFilteredLinks();
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  if (page > totalPages) return;
+  currentPage = page;
+  renderCards();
+  document.getElementById('linksGrid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderContact() {
+  const contact = config && config.contact || {};
+  const items = [
+    { key: 'wechat', label: '微信', color: '#07c160', href: contact.wechat ? (contact.wechat.startsWith('http') ? contact.wechat : '#') : '', copy: contact.wechat && !contact.wechat.startsWith('http') ? contact.wechat : '', icon: 'M9 11a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm6 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm-6 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm6 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4z' },
+    { key: 'qq', label: 'QQ群', color: '#12b7f5', href: contact.qq ? `https://qm.qq.com/cgi-bin/qm/qr?k=${contact.qq}&jump_from=webapi` : '', copy: contact.qq || '', icon: 'M4 16c0 2 2 3 4 3h8c2 0 4-1 4-3v-2H4v2zm16-5c0-3.3-2.7-6-6-6S8 7.7 8 11v2h12v-2z' },
+    { key: 'email', label: '邮箱', color: '#ea4335', href: contact.email ? `mailto:${contact.email}` : '', copy: contact.email || '', icon: 'M4 10v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8L12 15 4 10zm0-2l8 5 8-5V8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v2z' },
+    { key: 'telegram', label: 'Telegram', color: '#0088cc', href: contact.telegram ? (contact.telegram.startsWith('http') ? contact.telegram : `https://t.me/${contact.telegram.replace('@','')}`) : '', copy: contact.telegram && !contact.telegram.startsWith('http') ? contact.telegram : '', icon: 'M22 5.9l-3.4 17c-.3 1-1 1.3-1.7.8l-6.3-4.7-3 2.9c-.3.3-.5.5-1 .5l.5-6.5L18 8.2c.4-.3-.1-.5-.5-.2L7 14.5 2.3 13c-.9-.3-1-1 .2-1.5L20 3.7c.7-.3 1.4.2 1.2 1.2z' },
+    { key: 'twitter', label: 'Twitter', color: '#000000', href: contact.twitter ? (contact.twitter.startsWith('http') ? contact.twitter : `https://twitter.com/${contact.twitter.replace('@','')}`) : '', copy: contact.twitter && !contact.twitter.startsWith('http') ? contact.twitter : '', icon: 'M18.2 3.4c1.6 0 3.1.6 4.2 1.6-1.5-.1-2.9.9-3.4 2.3.1 0 .2 0 .3-.1 1.5 0 2.8.8 3.4 2-.4 0-.9.1-1.3.3 1.4.4 2.3 1.7 2.3 3.2v.1c0 2.2-1.2 4.1-3 5.1.2.1.4.1.6.1 1.5 0 2.9-.6 4-1.6-1.5 2.2-3.7 3.5-6.2 3.5-4.1 0-7.3-3.2-7.3-7.3v-.3c-1.3-.3-2.5-1-3.4-2 .7 0 1.4.1 2.1.4-1.4-.9-2.3-2.4-2.3-4.1 0-.9.2-1.7.6-2.4 1.5 1.9 3.8 3.1 6.4 3.2-.1-.4-.1-.8-.1-1.2 0-2.7 2.2-4.9 4.9-4.9z' },
+    { key: 'github', label: 'GitHub', color: '#333333', href: contact.github ? (contact.github.startsWith('http') ? contact.github : `https://github.com/${contact.github}`) : '', copy: contact.github && !contact.github.startsWith('http') ? contact.github : '', icon: 'M12 2C6.5 2 2 6.5 2 12c0 4.4 2.9 8.2 6.8 9.5.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.3-3.4-1.3-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.6.3-1.1.6-1.3-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.2.1-2.5 0 0 .8-.3 2.7 1 1.6-.4 3.2-.5 4.9-.5 1.7 0 3.3.1 4.9.5 1.9-1.3 2.7-1 2.7-1 .5 1.3.2 2.2.1 2.5.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .3.3.6.8.6 1.6v2.4c0 .3.2.6.7.5 3.9-1.3 6.8-5.1 6.8-9.5 0-5.5-4.5-10-10-10z' }
+  ].filter(item => contact[item.key] && String(contact[item.key]).trim());
+
+  const container = document.getElementById('contactList');
+  if (!container) return;
+
+  if (items.length === 0) {
+    container.innerHTML = '<p class="contact-note">暂无联系方式</p>';
+    return;
+  }
+
+  container.innerHTML = items.map(item => {
+    const value = String(contact[item.key]).trim();
+    const href = item.href || '#';
+    const copyText = item.copy || value;
+    return `
+      <div class="contact-item">
+        <a class="contact-item-main" href="${esc(href)}" target="${item.href ? '_blank' : '_self'}" rel="noopener noreferrer">
+          <div class="contact-icon" style="background:${item.color}">
+            <svg viewBox="0 0 24 24" fill="white"><path d="${item.icon}"/></svg>
+          </div>
+          <div class="contact-info">
+            <div class="contact-label">${esc(item.label)}</div>
+            <div class="contact-value">${esc(value)}</div>
+          </div>
+        </a>
+        <button class="contact-copy-btn" onclick="copyContactValue('${esc(copyText)}', this)" title="复制${esc(item.label)}">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span>复制</span>
+        </button>
+      </div>
+    `;
+  }).join('') + (contact.note ? `<p class="contact-note">${esc(contact.note)}</p>` : '');
+}
+
+function cloudIcon(url) {
+  if (!url) return iconOther();
+  // 国产网盘
+  if (url.includes('pan.baidu.com'))                                 return iconLetter('icon-baidu',   '#2932e1', '百度');
+  if (url.includes('aliyundrive.com') || url.includes('alipan.com')) return iconLetter('icon-ali',     '#ff6a00', '阿里');
+  if (url.includes('pan.quark.cn') || url.includes('quark.cn'))      return iconLetter('icon-quark',   '#0f62fe', '夸克');
+  if (url.includes('115.com'))                                       return iconLetter('icon-115',     '#5c1fd6', '115');
+  if (url.includes('cloud.189.cn') || url.includes('189.cn'))        return iconLetter('icon-tianyi',  '#00b578', '天翼');
+  if (url.includes('weiyun.com'))                                    return iconLetter('icon-weiyun',  '#0066ff', '微云');
+  if (url.includes('yunpan.360') || url.includes('c.360.cn'))         return iconLetter('icon-360',     '#00b35a', '360');
+  if (url.includes('jianguoyun.com'))                                return iconLetter('icon-nut',     '#2585e6', '坚果');
+  if (url.includes('caiyun.139.com') || url.includes('139.com'))     return iconLetter('icon-caiyun',  '#ff5500', '和彩');
+  if (url.includes('ctfile.com') || url.includes('pipipan.com'))     return iconLetter('icon-ct',      '#1890ff', '城通');
+  if (url.includes('wenshushu.cn'))                                  return iconLetter('icon-wenshu',  '#ff7800', '文叔');
+  if (url.includes('lanzou.com') || url.includes('lanzoux.com') || url.includes('lanzouj.com')) return iconLetter('icon-lanzou', '#1e88e5', '蓝奏');
+  if (url.includes('xunlei.com') || url.includes('pan.xunlei.com'))  return iconLetter('icon-xunlei',  '#0099ff', '迅雷');
+  if (url.includes('cowtransfer.com'))                               return iconLetter('icon-cow',     '#ffcc00', '奶牛');
+  if (url.includes('feisu.com') || url.includes('6pan'))             return iconLetter('icon-feisu',   '#ff5722', '飞速');
+  // 海外网盘
+  if (url.includes('onedrive.live.com') || url.includes('1drv.ms')) return iconLetter('icon-onedrive','#0078d4', 'One');
+  if (url.includes('drive.google.com'))                              return iconLetter('icon-gdrive',  '#4285f4', '谷歌');
+  if (url.includes('dropbox.com'))                                   return iconLetter('icon-dropbox', '#0061ff', 'DB');
+  if (url.includes('mega.nz') || url.includes('mega.co.nz'))         return iconLetter('icon-mega',    '#d9272e', 'MEGA');
+  if (url.includes('pcloud.com'))                                    return iconLetter('icon-pcloud',  '#00aaff', 'pC');
+  if (url.includes('mediafire.com'))                                 return iconLetter('icon-mf',      '#ff7700', 'MF');
+  if (url.includes('wetransfer.com'))                                return iconLetter('icon-wt',      '#4096ff', 'WT');
+  if (url.includes('sendspace.com'))                                 return iconLetter('icon-ss',      '#0099ff', 'SS');
+  if (url.includes('upload.ee'))                                     return iconLetter('icon-ee',      '#1a73e8', 'EE');
+  // 文档/笔记类
+  if (url.includes('docs.qq.com'))                                   return iconLetter('icon-txdoc',   '#1e6fff', '腾讯');
+  if (url.includes('kdocs.cn') || url.includes('wps.cn'))            return iconLetter('icon-kdocs',   '#ee2c2c', '金山');
+  if (url.includes('shimo.im'))                                      return iconLetter('icon-shimo',   '#2a52e9', '石墨');
+  if (url.includes('feishu.cn') || url.includes('larksuite.com'))   return iconLetter('icon-feishu',  '#3370ff', '飞书');
+  if (url.includes('yuque.com'))                                     return iconLetter('icon-yuque',   '#25b864', '语雀');
+  if (url.includes('notion.so') || url.includes('notion.site'))      return iconLetter('icon-notion',  '#000000', 'N');
+  if (url.includes('icloud.com'))                                    return iconLetter('icon-icloud',  '#a3aaae', 'iC');
+  return iconOther();
+}
+
+function iconLetter(cls, color, text) {
+  return {
+    cls,
+    svg: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="10" fill="${color}"/><text x="20" y="25" text-anchor="middle" fill="white" font-size="12" font-weight="bold">${text}</text></svg>`
+  };
+}
+
+function iconCloud(cls, color) {
+  return {
+    cls,
+    svg: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="10" fill="${color}"/><path d="M12 24h16a5 5 0 0 0 0-10 6 6 0 0 0-10.5-2.5A6 6 0 0 0 12 24z" fill="white" opacity="0.9"/></svg>`
+  };
+}
+
+function iconTriangle(cls, color) {
+  return {
+    cls,
+    svg: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="10" fill="${color}"/><path d="M20 11 L29 27 H11 Z" fill="white" opacity="0.9"/></svg>`
+  };
+}
+
+function iconOther() {
+  return iconLetter('icon-other', '#9ca3af', '网盘');
+}
+
+function cloudName(url) {
+  if (!url) return '网盘';
+  if (url.includes('pan.baidu.com'))                                 return '百度网盘';
+  if (url.includes('aliyundrive.com') || url.includes('alipan.com')) return '阿里云盘';
+  if (url.includes('pan.quark.cn') || url.includes('quark.cn'))      return '夸克网盘';
+  if (url.includes('115.com'))                                       return '115网盘';
+  if (url.includes('cloud.189.cn') || url.includes('189.cn'))        return '天翼云盘';
+  if (url.includes('weiyun.com'))                                    return '腾讯微云';
+  if (url.includes('yunpan.360') || url.includes('c.360.cn'))         return '360云盘';
+  if (url.includes('jianguoyun.com'))                                return '坚果云';
+  if (url.includes('caiyun.139.com') || url.includes('139.com'))     return '和彩云';
+  if (url.includes('ctfile.com') || url.includes('pipipan.com'))     return '城通网盘';
+  if (url.includes('wenshushu.cn'))                                  return '文叔叔';
+  if (url.includes('lanzou.com') || url.includes('lanzoux.com') || url.includes('lanzouj.com')) return '蓝奏云';
+  if (url.includes('xunlei.com') || url.includes('pan.xunlei.com'))  return '迅雷网盘';
+  if (url.includes('cowtransfer.com'))                               return '奶牛快传';
+  if (url.includes('feisu.com') || url.includes('6pan'))             return '飞速网盘';
+  if (url.includes('onedrive.live.com') || url.includes('1drv.ms')) return 'OneDrive';
+  if (url.includes('drive.google.com'))                              return 'Google Drive';
+  if (url.includes('dropbox.com'))                                   return 'Dropbox';
+  if (url.includes('mega.nz') || url.includes('mega.co.nz'))         return 'MEGA';
+  if (url.includes('pcloud.com'))                                    return 'pCloud';
+  if (url.includes('mediafire.com'))                                 return 'MediaFire';
+  if (url.includes('wetransfer.com'))                                return 'WeTransfer';
+  if (url.includes('sendspace.com'))                                 return 'SendSpace';
+  if (url.includes('upload.ee'))                                     return 'Easyupload';
+  if (url.includes('docs.qq.com'))                                   return '腾讯文档';
+  if (url.includes('kdocs.cn') || url.includes('wps.cn'))            return '金山文档';
+  if (url.includes('shimo.im'))                                      return '石墨文档';
+  if (url.includes('feishu.cn') || url.includes('larksuite.com'))   return '飞书文档';
+  if (url.includes('yuque.com'))                                     return '语雀';
+  if (url.includes('notion.so') || url.includes('notion.site'))      return 'Notion';
+  if (url.includes('icloud.com'))                                    return 'iCloud';
+  return '网盘';
+}
+
+function gotoUrl(url, code) {
+  if (!url) return '#';
+  if (!code || !String(code).trim()) return url;
+
+  try {
+    const u = new URL(url);
+    const host = u.hostname;
+    const c = String(code).trim();
+
+    // 百度网盘：?pwd=abcd
+    if (host.includes('pan.baidu.com')) {
+      u.searchParams.set('pwd', c);
+      return u.toString();
+    }
+
+    // 夸克网盘：?pwd=abcd
+    if (host.includes('pan.quark.cn')) {
+      u.searchParams.set('pwd', c);
+      return u.toString();
+    }
+
+    // 阿里云盘/阿里盘：尝试 ?pwd=abcd
+    if (host.includes('aliyundrive.com') || host.includes('alipan.com')) {
+      u.searchParams.set('pwd', c);
+      return u.toString();
+    }
+
+    // 115网盘
+    if (host.includes('115.com')) {
+      u.searchParams.set('password', c);
+      return u.toString();
+    }
+
+    // 天翼云盘
+    if (host.includes('cloud.189.cn')) {
+      u.searchParams.set('pwd', c);
+      return u.toString();
+    }
+
+    // 蓝奏云
+    if (host.includes('lanzou') || host.includes('lanzoux')) {
+      u.searchParams.set('pwd', c);
+      return u.toString();
+    }
+
+    // 迅雷网盘
+    if (host.includes('xunlei.com') || host.includes('pan.xunlei')) {
+      u.searchParams.set('pwd', c);
+      return u.toString();
+    }
+
+    // 通用：也尝试 pwd，不保证有效
+    u.searchParams.set('pwd', c);
+    return u.toString();
+  } catch (e) {
+    return url;
+  }
+}
+
+function cardHTML(l) {
+  const icon = cloudIcon(l.url);
+  const cname = cloudName(l.url);
+  const hasCode = l.code && l.code.trim();
+  const goUrl = gotoUrl(l.url, l.code);
+
+  const hasUrl2 = l.url2 && l.url2.trim();
+  const url2Icon = hasUrl2 ? cloudIcon(l.url2) : null;
+  const url2Cname = hasUrl2 ? cloudName(l.url2) : '备用链接';
+  const url2HasCode = hasUrl2 && l.code2 && l.code2.trim();
+  const url2GoUrl = hasUrl2 ? gotoUrl(l.url2, l.code2) : '#';
+
+  const buttons = [];
+  buttons.push(`
+    <a class="btn-goto" href="${esc(goUrl)}" target="_blank" rel="noopener noreferrer" data-code="${esc(l.code || '')}" data-id="${esc(l.id)}" onclick="handleGoto(this)">
+      ${cname}
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    </a>
+  `);
+
+  if (hasUrl2) {
+    buttons.push(`
+      <a class="btn-goto btn-goto-secondary" href="${esc(url2GoUrl)}" target="_blank" rel="noopener noreferrer" data-code="${esc(l.code2 || '')}" data-id="${esc(l.id)}" onclick="handleGoto(this)">
+        ${url2Cname}
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      </a>
+    `);
+  }
+
+  const sizeInfo = [];
+  sizeInfo.push(cname);
+  if (l.size) sizeInfo.push(esc(l.size));
+  if (hasCode) sizeInfo.push(`提取码：<b>${esc(l.code)}</b>`);
+  if (hasUrl2) {
+    sizeInfo.push(url2Cname);
+    if (url2HasCode) sizeInfo.push(`提取码：<b>${esc(l.code2)}</b>`);
+  }
+
+  return `
+  <div class="link-card" id="card-${l.id}">
+    <div class="card-head">
+      <div class="card-icon ${icon.cls}">${icon.svg}</div>
+      <div class="card-meta">
+        <div class="card-title">${esc(l.title)}</div>
+        <span class="card-category">${esc(l.category || '未分类')}</span>
+      </div>
+    </div>
+    ${l.desc ? `<p class="card-desc">${esc(l.desc)}</p>` : ''}
+    <div class="card-footer">
+      <span class="card-size">${sizeInfo.join(' · ')}</span>
+      <div class="btn-group">
+        ${buttons.join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function trackClick(id) {
+  // optional: can record click count here
+}
+
+function handleGoto(el) {
+  const code = el.dataset.code;
+  const id = el.dataset.id;
+  if (code && code.trim()) {
+    navigator.clipboard.writeText(code.trim()).catch(() => {});
+  }
+  trackClick(id);
+}
+
+/* =============================================
+   Filter & Search
+   ============================================= */
+function filterLinks(cat, btn) {
+  currentCat = cat;
+  currentPage = 1;
+  document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderCards();
+}
+
+function handleSearch() {
+  currentSearch = document.getElementById('searchInput').value;
+  currentPage = 1;
+  renderCards();
+}
+
+function copyContactValue(text, btn) {
+  if (!text) return;
+  navigator.clipboard.writeText(text.trim()).then(() => {
+    // 按钮反馈
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>已复制</span>';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.innerHTML = originalHTML;
+      btn.classList.remove('copied');
+    }, 1500);
+    showToast('已复制：' + text.trim());
+  }).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = text.trim();
+    ta.style.cssText = 'position:fixed;left:-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('已复制：' + text.trim());
+  });
+}
+
+function showToast(msg, type) {
+  // 移除已有的 toast
+  const old = document.querySelectorAll('.toast-msg');
+  old.forEach(o => o.remove());
+
+  const el = document.createElement('div');
+  el.className = 'toast-msg';
+
+  const isSuccess = !type || type === 'success';
+  const bgColor = isSuccess ? '#10b981' : '#1e1e2e';
+
+  // 图标
+  const iconSpan = document.createElement('span');
+  if (isSuccess) {
+    iconSpan.innerHTML = '<svg width="16" height="16" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+  }
+
+  // 文字
+  const textSpan = document.createElement('span');
+  textSpan.textContent = msg;
+
+  el.style.cssText = 'position:fixed;bottom:28px;right:28px;z-index:99999;background:' + bgColor + ';color:#fff;padding:12px 20px;border-radius:12px;font-size:13.5px;animation:toastIn .25s ease;display:flex;align-items:center;gap:8px;box-shadow:0 8px 30px rgba(0,0,0,0.18);font-weight:500;letter-spacing:0.2px;max-width:320px;';
+  el.appendChild(iconSpan);
+  el.appendChild(textSpan);
+
+  document.body.appendChild(el);
+  setTimeout(() => {
+    el.style.animation = 'toastOut .25s ease forwards';
+    setTimeout(() => el.remove(), 260);
+  }, 2200);
+}
+
+/* =============================================
+   Boot
+   ============================================= */
+init();
+</script>
+</body>
+</html>
